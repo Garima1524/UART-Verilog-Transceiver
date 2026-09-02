@@ -1,0 +1,24 @@
+# Vivado generated files
+*.jou
+*.log
+*.str
+*.wdb
+*.dcp
+
+# Vivado project generated directories
+UART.cache/
+UART.hw/
+UART.ip_user_files/
+UART.sim/
+UART.srcs/
+UART.runs/
+UART.gen/
+UART.xpr
+
+# Temporary files
+*.tmp
+*.bak
+
+# OS files
+.DS_Store
+Thumbs.db
