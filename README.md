@@ -1,246 +1,127 @@
-\# UART Verilog Transceiver
+# UART Verilog Transceiver
 
+## Overview
 
+A parameterized full-duplex UART transceiver designed and verified using Verilog HDL. The design supports 8-bit LSB-first serial communication with configurable baud-rate generation and 16× receiver oversampling for reliable asynchronous data reception.
 
-\## Overview
+The design is organized into transmitter, receiver, baud-generation, and top-level integration modules, with a self-checking testbench for end-to-end functional verification.
 
+## Key Features
 
+* Full-duplex UART TX/RX communication
+* 8-bit LSB-first data transmission
+* Configurable baud rate
+* 16× RX oversampling
+* Mid-bit sampling for reliable data reception
+* 2-flop synchronizer for asynchronous RX input
+* FSM-based transmitter and receiver
+* TX/RX loopback architecture
+* Self-checking testbench
 
-A parameterized full-duplex UART transceiver designed and verified using Verilog HDL. The design supports 8-bit LSB-first serial communication with configurable baud rate generation and 16× receiver oversampling for reliable asynchronous data reception.
-
-
-
-The project includes separate transmitter, receiver, baud-generation, and top-level integration modules, along with a self-checking testbench for functional verification.
-
-
-
-\## Features
-
-
-
-\* Full-duplex UART TX/RX communication
-
-\* 8-bit data transmission
-
-\* LSB-first serial communication
-
-\* Configurable baud rate
-
-\* 16× RX oversampling
-
-\* Mid-bit sampling for reliable data reception
-
-\* 2-flop synchronizer for asynchronous RX input
-
-\* FSM-based TX and RX logic
-
-\* Loopback architecture for end-to-end verification
-
-\* Self-checking testbench
-
-
-
-\## Architecture
-
-
+## Architecture
 
 ```text
-
-&#x20;                +----------------------+
-
-&#x20;                |      UART TOP        |
-
-&#x20;                |                      |
-
-&#x20;                |  +---------------+   |
-
-TX Data -------->|  | UART TX       |---|----> TX
-
-&#x20;                |  +---------------+   |
-
-&#x20;                |          ^           |
-
-&#x20;                |          |           |
-
-&#x20;                |  +---------------+   |
-
-&#x20;                |  | Baud Generator|   |
-
-&#x20;                |  +---------------+   |
-
-&#x20;                |          |           |
-
-RX ------------->|  +---------------+   |
-
-&#x20;                |  | UART RX       |   |
-
-&#x20;                |  +---------------+   |
-
-&#x20;                |          |           |
-
-&#x20;                +----------|-----------+
-
-&#x20;                           v
-
-&#x20;                        RX Data
-
+                    +----------------------+
+                    |      UART TOP        |
+                    |                      |
+TX Data ---------->|   +-------------+    |--------> TX
+                    |   |   UART TX   |    |
+                    |   +-------------+    |
+                    |          ^           |
+                    |          |           |
+                    |   +-------------+    |
+                    |   | Baud Gen.   |    |
+                    |   +-------------+    |
+                    |          |           |
+RX ---------------->|   +-------------+    |
+                    |   |   UART RX   |    |
+                    |   +-------------+    |
+                    |          |           |
+                    +----------|-----------+
+                               v
+                            RX Data
 ```
 
+## UART Frame Format
 
-
-\## Module Description
-
-
-
-| Module          | Description                                                         |
-
-| --------------- | ------------------------------------------------------------------- |
-
-| `baud.v`        | Generates the sampling/baud timing signals                          |
-
-| `tx.v`          | Implements UART transmission using an FSM                           |
-
-| `uart\_rx.v`     | Implements UART reception with synchronization and 16× oversampling |
-
-| `uart\_top.v`    | Integrates the transmitter, receiver, and baud generator            |
-
-| `uart\_top\_tb.v` | Top-level self-checking testbench for functional verification       |
-
-
-
-\## UART Frame
-
-
-
-The implemented UART frame consists of:
-
-
+The UART frame consists of one start bit, eight data bits, and one stop bit.
 
 ```text
-
-Start | Data\[0] | Data\[1] | ... | Data\[7] | Stop
-
-&#x20; 0       LSB                         MSB       1
-
+Start | Data[0] | Data[1] | ... | Data[7] | Stop
+  0       LSB                         MSB       1
 ```
 
+Data is transmitted **LSB first**.
 
+## Receiver Design
 
-The data is transmitted \*\*LSB first\*\*.
+The receiver uses **16× oversampling** to improve the reliability of asynchronous serial-data reception.
 
+A **2-flop synchronizer** is used at the RX input to reduce the probability of metastability propagation into the receiver logic.
 
+After detecting the start bit, the receiver uses the oversampling clock to sample the incoming data near the center of each bit period and reconstruct the received 8-bit word.
 
-\## Receiver Design
+## Module Description
 
+| Module          | Description                                                               |
+| --------------- | ------------------------------------------------------------------------- |
+| `baud.v`        | Generates the sampling and baud timing signals                            |
+| `tx.v`          | Implements UART transmission using an FSM                                 |
+| `uart_rx.v`     | Implements UART reception with input synchronization and 16× oversampling |
+| `uart_top.v`    | Integrates the transmitter, receiver, and baud generator                  |
+| `uart_top_tb.v` | Top-level self-checking testbench for functional verification             |
 
+## Verification
 
-The receiver uses \*\*16× oversampling\*\* of the incoming asynchronous serial signal.
+The UART was verified using a top-level testbench implementing end-to-end TX/RX loopback.
 
+The verification environment checks:
 
+* UART transmission
+* UART reception
+* TX/RX loopback operation
+* Received-data correctness
+* TX/RX completion signaling
+* Multiple test cases
 
-A 2-flop synchronizer is used at the RX input to reduce the risk of metastability when sampling the asynchronous signal.
+Simulation waveforms were analyzed to verify serial-data timing, baud/sample timing, transmitted data, and received data.
 
+### Simulation Results
 
+Simulation waveforms demonstrating the UART TX/RX operation will be added here.
 
-The receiver detects the start bit and samples the incoming data near the center of each bit period before reconstructing the 8-bit received data.
+<!-- Add waveform screenshots here -->
 
+## Tools Used
 
+* **HDL:** Verilog
+* **EDA:** Xilinx Vivado
+* **Verification:** RTL simulation and waveform analysis
+* **Version Control:** Git / GitHub
 
-\## Verification
-
-
-
-The design is verified using a top-level testbench that performs end-to-end UART communication.
-
-
-
-The testbench verifies:
-
-
-
-\* UART transmission
-
-\* UART reception
-
-\* TX/RX loopback operation
-
-\* Received data correctness
-
-\* Completion signaling
-
-\* Multiple test cases
-
-
-
-Simulation waveforms are used to examine the TX, RX, baud/sample timing, transmitted data, and received data.
-
-
-
-\## Tools Used
-
-
-
-\* Verilog HDL
-
-\* Xilinx Vivado
-
-\* Simulation and waveform analysis
-
-\* Git / GitHub
-
-
-
-\## Project Structure
-
-
+## Project Structure
 
 ```text
-
 UART-Verilog-Transceiver/
-
 │
-
 ├── rtl/
-
 │   ├── baud.v
-
 │   ├── tx.v
-
-│   ├── uart\_rx.v
-
-│   └── uart\_top.v
-
+│   ├── uart_rx.v
+│   └── uart_top.v
 │
-
 ├── testbench/
-
-│   └── uart\_top\_tb.v
-
+│   └── uart_top_tb.v
 │
-
 ├── README.md
-
 └── .gitignore
-
 ```
 
+## Future Improvements
 
-
-\## Future Improvements
-
-
-
-\* Parity-bit support
-
-\* Configurable data width
-
-\* Configurable stop-bit selection
-
-\* FPGA hardware implementation
-
-\* Hardware loopback demonstration
-
-\* Additional corner-case verification
-
-
-
+* Parity-bit support
+* Configurable data width
+* Configurable stop-bit selection
+* FPGA hardware implementation
+* Hardware loopback demonstration
+* Additional corner-case verification
