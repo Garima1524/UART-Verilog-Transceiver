@@ -88,9 +88,9 @@ Simulation waveforms were analyzed to verify serial-data timing, baud/sample tim
 
 ### Simulation Results
 
-Simulation waveforms demonstrating the UART TX/RX operation will be added here.
+The following waveform demonstrates UART TX/RX loopback operation.
 
-<!-- Add waveform screenshots here -->
+![UART Loopback Waveform](images/UART_Waveform.png)
 
 ## Tools Used
 
